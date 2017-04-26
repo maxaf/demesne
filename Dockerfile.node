@@ -1,0 +1,10 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM alpine:latest
+
+RUN apk update
+RUN apk add bash git coreutils nodejs
+RUN apk cache clean || true
+
+ENTRYPOINT ["/bin/bash"]

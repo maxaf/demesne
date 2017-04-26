@@ -86,8 +86,6 @@ fi
 
 if [ "$cmd" == ".shell" ]; then
   docker_exec /bin/bash
-elif [ "$cmd" == "$container" ]; then
-  docker_exec "$container $@"
 else
   docker_exec "$cmd $@"
 fi
