@@ -5,18 +5,12 @@ set -e
 container=$(basename $(readlink -f $0))
 cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
-work=$(echo $PWD | sed -e s,$root/,,g)
 mnt=/${container}.demesne
 
 #echo "container = $container"
 #echo "cmd       = $cmd"
 #echo "root      = $root"
-#echo "work      = $work"
 #exit 0
-
-if [[ "$work" == ..* ]] || [[ "$work" == /* ]]; then
-  work=""
-fi
 
 volumes=(-v $root:$mnt)
 
@@ -51,7 +45,7 @@ function docker_exec {
       $container \
       -c "\$@" -- $@
   else
-    exec docker exec ${env[@]} -it $container bash -c "cd $mnt/$work; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
+    exec docker exec ${env[@]} -it $container bash -c "cd $mnt; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
   fi
 }
 
