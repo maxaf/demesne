@@ -1,0 +1,89 @@
+#!/bin/bash
+
+set -e
+
+cmd=$(basename $0)
+root=$(readlink -f $(dirname $0))
+work=$(echo $PWD | sed -e s,$root/,,g)
+
+if [[ "$work" == ..* ]] || [[ "$work" == /* ]]; then
+  work=""
+fi
+
+volumes=(-v $root:/demesne)
+
+function docker_rm {
+  echo --rm=$( [ "$CIRCLECI" == "true" ] && echo false || echo true )
+}
+
+function build {
+  docker build -t $cmd $(docker_rm) $root
+}
+
+function get_label {
+  label=$1
+  docker inspect --format="{{ index .Config.Labels \"demesne.${label}\"}}" $cmd
+}
+
+function docker_exec {
+  env=()
+  preserve=()
+  for e in ${preserve[@]}; do
+    if [ "${!e}" != "" ]; then
+      env+=(-e $e=${!e})
+    fi
+  done
+  if [ "$CIRCLECI" == "true" ]; then
+    docker run \
+      $(docker_rm) \
+      ${env[@]} \
+      ${volumes[@]} \
+      -w /local/src \
+      --entrypoint /bin/bash \
+      $cmd \
+      -c "\$@" -- $@
+  else
+    docker exec ${env[@]} -it $cmd bash -c "cd /demesne/$work; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
+  fi
+}
+
+function clean_up {
+  docker stop $cmd || true
+  docker rm -f $cmd || true
+}
+
+if [ "$CIRCLECI" == "true" ] || [ "$(docker images -q $cmd)" == "" ]; then
+  build
+else
+  dockerfile_time=$(stat -c %Y $root/Dockerfile $0 | sort -nr | head -1)
+  build_time=$(get_label 'build_time')
+  if [ ${build_time:-$(date +%s)} -lt $dockerfile_time ]; then
+    clean_up
+    build
+  fi
+fi
+
+if [ "$(docker ps -qa -f name=$cmd)" == "" ] && [ "$CIRCLECI" != "true" ]; then
+  volumes+=(-v $HOME/.aws:/root/.aws)
+  docker run \
+    -h $cmd \
+    -P \
+    ${volumes[@]} \
+    -w /local/src \
+    -td \
+    --name $cmd \
+    --entrypoint /bin/bash \
+    --label demesne.build_time=$(date +%s) \
+    $cmd \
+    >/dev/null
+fi
+
+if [ "$(docker ps -qa -f name=$cmd -f status=running)" == "" ] && [ "$CIRCLECI" != "true" ]; then
+  docker start $cmd >/dev/null
+fi
+
+if [ $# -gt 0 ]; then
+  docker_exec "$@"
+else
+  docker_exec /bin/bash
+fi
