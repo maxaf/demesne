@@ -14,3 +14,7 @@ cp -v $root/Dockerfile $dir/Dockerfile
 for cmd in ${cmds[@]}; do
   ln -sv $dir/$name $dir/$cmd
 done
+
+cat <<HERE >$dir/.use.sh
+export PATH=$dir:\$PATH
+HERE
