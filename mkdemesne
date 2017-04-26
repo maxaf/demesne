@@ -1,0 +1,16 @@
+#!/bin/bash
+
+root=$(readlink -f $(dirname $0))
+name=$1
+shift
+cmds=($@)
+
+dir=$root/${name}.demesne
+mkdir -pv $dir
+ln -v $root/demesne $dir/$name
+ln -sv $dir/$name $dir/.shell
+cp -v $root/Dockerfile $dir/Dockerfile
+
+for cmd in ${cmds[@]}; do
+  ln -sv $dir/$name $dir/$cmd
+done

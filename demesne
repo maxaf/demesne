@@ -2,27 +2,35 @@
 
 set -e
 
+container=$(basename $(readlink -f $0))
 cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
 work=$(echo $PWD | sed -e s,$root/,,g)
+mnt=/${container}.demesne
+
+#echo "container = $container"
+#echo "cmd       = $cmd"
+#echo "root      = $root"
+#echo "work      = $work"
+#exit 0
 
 if [[ "$work" == ..* ]] || [[ "$work" == /* ]]; then
   work=""
 fi
 
-volumes=(-v $root:/demesne)
+volumes=(-v $root:$mnt)
 
 function docker_rm {
   echo --rm=$( [ "$CIRCLECI" == "true" ] && echo false || echo true )
 }
 
 function build {
-  docker build -t $cmd $(docker_rm) $root
+  docker build -t $container $(docker_rm) $root
 }
 
 function get_label {
   label=$1
-  docker inspect --format="{{ index .Config.Labels \"demesne.${label}\"}}" $cmd
+  docker inspect --format="{{ index .Config.Labels \"demesne.${label}\"}}" $container
 }
 
 function docker_exec {
@@ -34,25 +42,25 @@ function docker_exec {
     fi
   done
   if [ "$CIRCLECI" == "true" ]; then
-    docker run \
+    exec docker run \
       $(docker_rm) \
       ${env[@]} \
       ${volumes[@]} \
-      -w /local/src \
+      -w $mnt \
       --entrypoint /bin/bash \
-      $cmd \
+      $container \
       -c "\$@" -- $@
   else
-    docker exec ${env[@]} -it $cmd bash -c "cd /demesne/$work; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
+    exec docker exec ${env[@]} -it $container bash -c "cd $mnt/$work; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
   fi
 }
 
 function clean_up {
-  docker stop $cmd || true
-  docker rm -f $cmd || true
+  docker stop $container || true
+  docker rm -f $container || true
 }
 
-if [ "$CIRCLECI" == "true" ] || [ "$(docker images -q $cmd)" == "" ]; then
+if [ "$CIRCLECI" == "true" ] || [ "$(docker images -q $container)" == "" ]; then
   build
 else
   dockerfile_time=$(stat -c %Y $root/Dockerfile $0 | sort -nr | head -1)
@@ -63,27 +71,29 @@ else
   fi
 fi
 
-if [ "$(docker ps -qa -f name=$cmd)" == "" ] && [ "$CIRCLECI" != "true" ]; then
+if [ "$(docker ps -qa -f name=$container)" == "" ] && [ "$CIRCLECI" != "true" ]; then
   volumes+=(-v $HOME/.aws:/root/.aws)
   docker run \
-    -h $cmd \
+    -h $container \
     -P \
     ${volumes[@]} \
-    -w /local/src \
+    -w $mnt \
     -td \
-    --name $cmd \
+    --name $container \
     --entrypoint /bin/bash \
     --label demesne.build_time=$(date +%s) \
-    $cmd \
+    $container \
     >/dev/null
 fi
 
-if [ "$(docker ps -qa -f name=$cmd -f status=running)" == "" ] && [ "$CIRCLECI" != "true" ]; then
-  docker start $cmd >/dev/null
+if [ "$(docker ps -qa -f name=$container -f status=running)" == "" ] && [ "$CIRCLECI" != "true" ]; then
+  docker start $container >/dev/null
 fi
 
-if [ $# -gt 0 ]; then
-  docker_exec "$@"
-else
+if [ "$cmd" == ".shell" ]; then
   docker_exec /bin/bash
+elif [ "$cmd" == "$container" ]; then
+  docker_exec "$container $@"
+else
+  docker_exec "$cmd $@"
 fi
