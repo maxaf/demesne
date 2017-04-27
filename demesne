@@ -16,10 +16,6 @@ pwd=$hostfs/$PWD
 
 volumes=(-v /:$hostfs)
 
-function docker_rm {
-  echo --rm=$( [ "$CIRCLECI" == "true" ] && echo false || echo true )
-}
-
 function build {
   docker build \
     -t demesne \
@@ -30,7 +26,7 @@ function build {
     --build-arg GID=$(id -g)
   docker build \
     -t $container \
-    $(docker_rm) \
+    --rm \
     $root
 }
 
@@ -47,18 +43,7 @@ function docker_exec {
       env+=(-e $e=${!e})
     fi
   done
-  if [ "$CIRCLECI" == "true" ]; then
-    exec docker run \
-      $(docker_rm) \
-      ${env[@]} \
-      ${volumes[@]} \
-      -w $pwd \
-      --entrypoint /bin/bash \
-      $container \
-      -c "\$@" -- $@
-  else
-    exec docker exec ${env[@]} -it $container bash -c "cd $pwd; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
-  fi
+  exec docker exec ${env[@]} -it $container bash -c "cd $pwd; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
 }
 
 function clean_up {
@@ -68,7 +53,7 @@ function clean_up {
   docker rmi -f demesne:latest
 }
 
-if [ "$CIRCLECI" == "true" ] || [ "$(docker images -q $container)" == "" ]; then
+if [ "$(docker images -q $container)" == "" ]; then
   build
 else
   dockerfile_time=$(stat -c %Y $root/Dockerfile $0 | sort -nr | head -1)
@@ -79,7 +64,7 @@ else
   fi
 fi
 
-if [ "$(docker ps -qa -f name=$container)" == "" ] && [ "$CIRCLECI" != "true" ]; then
+if [ "$(docker ps -qa -f name=$container)" == "" ]; then
   docker run \
     -h $container \
     -P \
@@ -93,7 +78,7 @@ if [ "$(docker ps -qa -f name=$container)" == "" ] && [ "$CIRCLECI" != "true" ];
     >/dev/null
 fi
 
-if [ "$(docker ps -qa -f name=$container -f status=running)" == "" ] && [ "$CIRCLECI" != "true" ]; then
+if [ "$(docker ps -qa -f name=$container -f status=running)" == "" ]; then
   docker start $container >/dev/null
 fi
 
