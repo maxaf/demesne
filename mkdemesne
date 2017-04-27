@@ -9,7 +9,7 @@ dir=$root/${name}.demesne
 mkdir -pv $dir
 ln -vf $root/demesne $dir/$name
 ln -svf $dir/$name $dir/.shell
-ln -svf $root/Dockerfile $dir/Dockerfile.base
+ln -vf $root/Dockerfile $dir/Dockerfile.base
 dockerfile=$root/Dockerfile.${name}
 [ -f $dockerfile ] || dockerfile=$root/Dockerfile
 cp -v $dockerfile $dir/Dockerfile
