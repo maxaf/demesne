@@ -38,7 +38,6 @@ function get_label {
 function docker_exec {
   env=()
   for line in $(cat $root/.env 2>/dev/null || true); do
-    echo line=$line
     IFS== read key value <<<"$line"
     if [ "$value" == "" ]; then
       value=${!key}
