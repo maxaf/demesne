@@ -37,11 +37,13 @@ function get_label {
 
 function docker_exec {
   env=()
-  preserve=()
-  for e in ${preserve[@]}; do
-    if [ "${!e}" != "" ]; then
-      env+=(-e $e=${!e})
+  for line in $(cat $root/.env 2>/dev/null || true); do
+    echo line=$line
+    IFS== read key value <<<"$line"
+    if [ "$value" == "" ]; then
+      value=${!key}
     fi
+    env+=(-e $key=$value)
   done
   exec docker exec ${env[@]} -it $container bash -c "cd $pwd; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
 }
