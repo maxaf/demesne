@@ -1,0 +1,9 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM demesne
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+ENV PATH $HOME/.cargo/bin:$PATH
+
+ENTRYPOINT ["/bin/bash"]

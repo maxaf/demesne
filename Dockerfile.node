@@ -1,10 +1,10 @@
 # -*- mode: dockerfile -*-
 # vi: set ft=dockerfile :
 
-FROM alpine:latest
+FROM demesne
 
-RUN apk update
-RUN apk add bash git coreutils nodejs
-RUN apk cache clean || true
+RUN sudo apt-get install -y gnupg2
+RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - \
+    && sudo apt-get install -y nodejs
 
 ENTRYPOINT ["/bin/bash"]

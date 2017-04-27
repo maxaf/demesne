@@ -5,21 +5,33 @@ set -e
 container=$(basename $(readlink -f $0))
 cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
-mnt=/${container}.demesne
+hostfs=/hostfs/${container}
+pwd=$hostfs/$PWD
 
 #echo "container = $container"
 #echo "cmd       = $cmd"
 #echo "root      = $root"
+#echo "hostfs    = $hostfs"
 #exit 0
 
-volumes=(-v $root:$mnt)
+volumes=(-v /:$hostfs)
 
 function docker_rm {
   echo --rm=$( [ "$CIRCLECI" == "true" ] && echo false || echo true )
 }
 
 function build {
-  docker build -t $container $(docker_rm) $root
+  docker build \
+    -t demesne \
+    -f $root/Dockerfile.base \
+    $root \
+    --build-arg USER=demesne \
+    --build-arg UID=$(id -u) \
+    --build-arg GID=$(id -g)
+  docker build \
+    -t $container \
+    $(docker_rm) \
+    $root
 }
 
 function get_label {
@@ -40,18 +52,20 @@ function docker_exec {
       $(docker_rm) \
       ${env[@]} \
       ${volumes[@]} \
-      -w $mnt \
+      -w $pwd \
       --entrypoint /bin/bash \
       $container \
       -c "\$@" -- $@
   else
-    exec docker exec ${env[@]} -it $container bash -c "cd $mnt; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
+    exec docker exec ${env[@]} -it $container bash -c "cd $pwd; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
   fi
 }
 
 function clean_up {
   docker stop $container || true
   docker rm -f $container || true
+  docker rmi -f $container:latest
+  docker rmi -f demesne:latest
 }
 
 if [ "$CIRCLECI" == "true" ] || [ "$(docker images -q $container)" == "" ]; then
@@ -66,12 +80,11 @@ else
 fi
 
 if [ "$(docker ps -qa -f name=$container)" == "" ] && [ "$CIRCLECI" != "true" ]; then
-  volumes+=(-v $HOME/.aws:/root/.aws)
   docker run \
     -h $container \
     -P \
     ${volumes[@]} \
-    -w $mnt \
+    -w $pwd \
     -td \
     --name $container \
     --entrypoint /bin/bash \
