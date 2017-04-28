@@ -14,8 +14,6 @@ pwd=$hostfs/$PWD
 #echo "hostfs    = $hostfs"
 #exit 0
 
-volumes=(-v /:$hostfs)
-
 function build {
   docker build \
     -t demesne \
@@ -69,7 +67,7 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
   docker run \
     -h $container \
     -P \
-    ${volumes[@]} \
+    -v /:$hostfs \
     -w $pwd \
     -td \
     --name $container \
