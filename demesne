@@ -1,12 +1,16 @@
 #!/bin/bash
 
-set -e
+#set -e
 
 container=$(basename $(readlink -f $0))
 cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
 hostfs=/hostfs/${container}
 pwd=$hostfs/$PWD
+
+function log {
+  >>$root/demesne.log echo "[$(date)] $@"
+}
 
 #echo "container = $container"
 #echo "cmd       = $cmd"
@@ -42,7 +46,20 @@ function docker_exec {
     fi
     env+=(-e $key=$value)
   done
-  exec docker exec ${env[@]} -it $container bash -c "cd $pwd; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "$@"
+  args=()
+  for arg in $@; do
+    if [[ "$arg" == /* ]]; then
+      args+=(${hostfs}$arg)
+    else
+      args+=($arg)
+    fi
+  done
+  log ${args[@]}
+  term=""
+  if [ -t 1 ]; then
+    term="-t"
+  fi
+  exec docker exec ${env[@]} -i $term $container bash -c "cd $pwd; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "${args[@]}" 2>&1
 }
 
 function clean_up {
@@ -55,7 +72,7 @@ function clean_up {
 if [ "$(docker images -q $container)" == "" ]; then
   build
 else
-  dockerfile_time=$(stat -c %Y $root/Dockerfile $0 | sort -nr | head -1)
+  dockerfile_time=$(stat -c %Y $root/Dockerfile | sort -nr | head -1)
   build_time=$(get_label 'build_time')
   if [ ${build_time:-$(date +%s)} -lt $dockerfile_time ]; then
     clean_up
@@ -82,7 +99,7 @@ if [ "$(docker ps -qa -f name=$container -f status=running)" == "" ]; then
 fi
 
 if [ "$cmd" == ".shell" ]; then
-  docker_exec /bin/bash
+  docker_exec bash
 else
   docker_exec "$cmd $@"
 fi
