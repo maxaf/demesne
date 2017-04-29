@@ -6,5 +6,7 @@ FROM demesne
 RUN sudo apt-get install -y build-essential pkg-config libssl-dev zlib1g-dev
 RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 ENV PATH $HOME/.cargo/bin:$PATH
+RUN cargo install rustfmt
+RUN cargo install xargo
 
 ENTRYPOINT ["/bin/bash"]
