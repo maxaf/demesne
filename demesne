@@ -90,6 +90,7 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
     --name $container \
     --entrypoint /bin/bash \
     --label demesne.build_time=$(date +%s) \
+    --cap-add=SYS_ADMIN \
     $container \
     >/dev/null
 fi
