@@ -39,7 +39,7 @@ function get_label {
 
 function docker_exec {
   env=()
-  for line in $(cat $root/.env 2>/dev/null || true); do
+  for line in $(grep -v '^#' $root/.env 2>/dev/null || true); do
     IFS== read key value <<<"$line"
     if [ "$value" == "" ]; then
       value=${!key}
@@ -91,6 +91,8 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
     --entrypoint /bin/bash \
     --label demesne.build_time=$(date +%s) \
     --cap-add=SYS_ADMIN \
+    --cap-add=SYS_PTRACE \
+    --privileged \
     $container \
     >/dev/null
 fi
