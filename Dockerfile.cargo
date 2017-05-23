@@ -53,7 +53,7 @@ RUN curl_src=$(mktemp -d) && \
     cd - && \
     rm -rf $curl_src
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly-2017-05-04 -y
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
 RUN mkdir -p $HOME/.cargo
 ENV PATH $HOME/.cargo/bin:$PATH
 
