@@ -101,7 +101,7 @@ if [ "$(docker ps -qa -f name=$container -f status=running)" == "" ]; then
   docker start $container >/dev/null
 fi
 
-if [ "$cmd" == ".shell" ]; then
+if [ "$cmd" == "${container}-shell" ]; then
   docker_exec bash
 else
   docker_exec "$cmd $@"

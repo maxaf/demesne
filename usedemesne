@@ -1,9 +1,12 @@
 #!/bin/bash
 
-find \
+path=$PATH
+
+for dir in $(find \
   $(dirname $(readlink -f $0)) \
   -mindepth 1 -maxdepth 1 \
-  -type d -name '*.demesne' \
-  | while read dir; do
-      echo source ${dir}/.use.sh
-    done
+  -type d -name '*.demesne'); do
+  path=$dir:$path
+done
+
+echo export PATH=$path

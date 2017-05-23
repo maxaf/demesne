@@ -8,7 +8,7 @@ cmds=($@)
 dir=$root/${name}.demesne
 mkdir -pv $dir
 ln -vf $root/demesne $dir/$name
-ln -svf $dir/$name $dir/.shell
+ln -svf $dir/$name $dir/${name}-shell
 ln -vf $root/Dockerfile $dir/Dockerfile.base
 dockerfile=$root/Dockerfile.${name}
 [ -f $dockerfile ] || dockerfile=$root/Dockerfile
@@ -18,7 +18,3 @@ cp -v $root/.dockerignore $dir
 for cmd in ${cmds[@]}; do
   ln -svf $dir/$name $dir/$cmd
 done
-
-cat <<HERE >$dir/.use.sh
-export PATH=$dir:\$PATH
-HERE
