@@ -19,6 +19,6 @@ RUN sudo curl -sk -o $SBT https://raw.githubusercontent.com/paulp/sbt-extras/mas
 ENV PATH $SCALA_HOME/bin:$PATH
 
 RUN mkdir -p $HOME/.sbt/0.13/plugins \
-    && echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC1")' >$HOME/.sbt/0.13/plugins/build.sbt
+    && echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC3")' >$HOME/.sbt/0.13/plugins/build.sbt
 
 ENTRYPOINT ["/bin/bash"]
