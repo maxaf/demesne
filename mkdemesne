@@ -1,9 +1,22 @@
 #!/bin/bash
 
 root=$(readlink -f $(dirname $0))
-name=$1
-shift
-cmds=($@)
+
+name=""
+cmds=()
+
+while [[ $# -gt 1 ]]; do
+  case "$1" in
+    -n|--name)
+      name="$2"
+      shift
+      ;;
+    *)
+      cmds+=("$2")
+      shift
+      ;;
+  esac
+done
 
 dir=$root/${name}.demesne
 mkdir -pv $dir
