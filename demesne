@@ -7,6 +7,8 @@ cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
 hostfs=/hostfs/${container}
 pwd=$hostfs/$PWD
+user_name=demesne
+user_home=/home/$user_name
 
 function log {
   >>$root/demesne.log echo "[$(date)] $@"
@@ -23,7 +25,7 @@ function build {
     -t demesne \
     -f $root/Dockerfile.base \
     $root \
-    --build-arg USER=demesne \
+    --build-arg USER=$user_name \
     --build-arg UID=$(id -u) \
     --build-arg GID=$(id -g)
   docker build \
@@ -81,10 +83,16 @@ else
 fi
 
 if [ "$(docker ps -qa -f name=$container)" == "" ]; then
+  volumes=(-v /:$hostfs)
+  for volume in $(cat $root/.volumes 2>/dev/null || true); do
+    host_volume=$(echo $volume | sed -e s,~,$HOME,g)
+    container_volume=$(echo $volume | sed -e s,~,$user_home,g)
+    volumes+=(-v $host_volume:$container_volume)
+  done
   docker run \
     -h $container \
     -P \
-    -v /:$hostfs \
+    ${volumes[@]} \
     -w $pwd \
     -td \
     --name $container \

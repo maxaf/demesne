@@ -4,6 +4,7 @@ root=$(readlink -f $(dirname $0))
 
 name=""
 cmds=()
+volumes=()
 
 while [[ $# -gt 1 ]]; do
   case "$1" in
@@ -11,11 +12,16 @@ while [[ $# -gt 1 ]]; do
       name="$2"
       shift
       ;;
+    -v|--volume)
+      volumes+=("$2")
+      shift
+      ;;
     *)
-      cmds+=("$2")
+      cmds+=("$1")
       shift
       ;;
   esac
+  shift
 done
 
 dir=$root/${name}.demesne
@@ -29,5 +35,12 @@ cp -v $dockerfile $dir/Dockerfile
 cp -v $root/.dockerignore $dir
 
 for cmd in ${cmds[@]}; do
-  ln -svf $dir/$name $dir/$cmd
+  if [ "$name" != "$cmd" ]; then
+    ln -svf $dir/$name $dir/$cmd
+  fi
 done
+
+for volume in ${volumes[@]}; do
+  [ -d $volume ] || [ -f $volume ] || mkdir -p $volume
+  echo $volume | sed -e s,^"$HOME",~,g
+done >$dir/.volumes
