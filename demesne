@@ -46,7 +46,7 @@ function docker_exec {
     if [ "$value" == "" ]; then
       value=${!key}
     fi
-    env+=(-e $key=$value)
+    env+=($key=$(echo $value | sed -e s,$HOME,$user_home,g))
   done
   args=()
   for arg in $@; do
@@ -61,7 +61,7 @@ function docker_exec {
   if [ -t 1 ]; then
     term="-t"
   fi
-  exec docker exec ${env[@]} -i $term $container bash -c "cd $pwd; exec /usr/bin/env PS1='\\w \\$ ' \$@" -- "${args[@]}" 2>&1
+  exec docker exec -i $term $container bash -c "cd $pwd; exec /usr/bin/env ${env[@]} PS1='\\w \\$ ' \$@" -- "${args[@]}" 2>&1
 }
 
 function clean_up {
