@@ -6,9 +6,17 @@ FROM demesne
 ENV TERRAFORM_VERSION 0.9.8
 ENV TERRAFORM_ZIPBALL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
+ENV TERRAGRUNT_VERSION 0.12.20
+ENV TERRAGRUNT_BINARY https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64
+
 RUN curl -sL -o terraform.zip $TERRAFORM_ZIPBALL && \
     sudo apt-get install -y zip && \
     unzip terraform.zip && \
     sudo install -m 0755 -p terraform /usr/local/bin/ && \
     rm -f terraform terraform.zip
+
+RUN curl -sL -o terragrunt $TERRAGRUNT_BINARY && \
+    sudo install -m 0755 -p terragrunt /usr/local/bin/ && \
+    rm -rf terragrunt
+
 ENTRYPOINT ["/bin/bash"]
