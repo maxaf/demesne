@@ -3,7 +3,7 @@
 
 FROM demesne
 
-RUN sudo apt-get install -y zip
+RUN sudo apt install -y zip
 
 ENV TERRAFORM_VERSION 0.9.8
 ENV TERRAFORM_ZIPBALL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
@@ -27,5 +27,9 @@ RUN curl -sL -o packer.zip $PACKER_ZIPBALL && \
     unzip packer.zip && \
     sudo install -m 0755 -p packer /usr/local/bin/ && \
     rm -f packer packer.zip
+
+RUN sudo apt install -y python3.5 python3-pip && \
+    sudo pip3 install --upgrade pip && \
+    sudo pip3 install awscli
 
 ENTRYPOINT ["/bin/bash"]
