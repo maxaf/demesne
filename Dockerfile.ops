@@ -28,8 +28,10 @@ RUN curl -sL -o packer.zip $PACKER_ZIPBALL && \
     sudo install -m 0755 -p packer /usr/local/bin/ && \
     rm -f packer packer.zip
 
-RUN sudo apt install -y python3.5 python3-pip && \
+RUN sudo apt install -y python3.5 python3-pip groff less && \
     sudo pip3 install --upgrade pip && \
     sudo pip3 install awscli
+
+ENV PAGER /usr/bin/less
 
 ENTRYPOINT ["/bin/bash"]
