@@ -18,7 +18,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     *)
       cmds+=("$1")
-      shift
       ;;
   esac
   shift
@@ -41,6 +40,6 @@ for cmd in ${cmds[@]}; do
 done
 
 for volume in ${volumes[@]}; do
-  [ -d $volume ] || [ -f $volume ] || mkdir -p $volume
+  [ -d $volume ] || [ -f $volume ] || [ -L $volume ] || mkdir -p $volume
   echo $volume | sed -e s,^"$HOME",~,g
 done >$dir/.volumes
