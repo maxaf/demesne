@@ -99,7 +99,6 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
     -w $pwd \
     -td \
     --name $container \
-    --entrypoint /bin/bash \
     --label demesne.build_time=$(date +%s) \
     --cap-add=SYS_ADMIN \
     --cap-add=SYS_PTRACE \
