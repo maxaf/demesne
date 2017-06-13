@@ -5,6 +5,7 @@ root=$(readlink -f $(dirname $0))
 name=""
 cmds=()
 volumes=()
+env=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -14,6 +15,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     -v|--volume)
       volumes+=("$2")
+      shift
+      ;;
+    -e|--env)
+      env+=("$2")
       shift
       ;;
     *)
@@ -43,3 +48,7 @@ for volume in ${volumes[@]}; do
   [ -d $volume ] || [ -f $volume ] || [ -L $volume ] || mkdir -p $volume
   echo $volume | sed -e s,^"$HOME",~,g
 done >$dir/.volumes
+
+for env in ${env[@]}; do
+  echo $env
+done >$dir/.env
