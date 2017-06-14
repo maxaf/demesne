@@ -1,12 +1,13 @@
 #!/bin/bash
 
 path=$PATH
+root=$(dirname $(readlink -f $0))
 
 for dir in $(find \
-  $(dirname $(readlink -f $0)) \
+  $root \
   -mindepth 1 -maxdepth 1 \
   -type d -name '*.demesne'); do
   path=$dir:$path
 done
 
-echo export PATH=$path
+echo export PATH=$root:$path
