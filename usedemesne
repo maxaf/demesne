@@ -7,7 +7,7 @@ for dir in $(find \
   $root \
   -mindepth 1 -maxdepth 1 \
   -type d -name '*.demesne'); do
-  path=$dir:$path
+  path="$dir:$path"
 done
 
-echo export PATH=$root:$path
+echo export PATH=\"$root:$path\"
