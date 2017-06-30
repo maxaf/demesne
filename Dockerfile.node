@@ -3,8 +3,10 @@
 
 FROM demesne
 
-RUN sudo apt-get install -y gnupg2
-RUN curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - \
+RUN sudo apt-get install -y gnupg2 build-essential
+RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - \
     && sudo apt-get install -y nodejs
+
+RUN sudo chown -R $USER /usr/lib/node_modules
 
 ENTRYPOINT ["/bin/bash"]
