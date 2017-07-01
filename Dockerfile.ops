@@ -5,7 +5,7 @@ FROM demesne
 
 RUN sudo apt install -y zip
 
-ENV TERRAFORM_VERSION 0.9.8
+ENV TERRAFORM_VERSION 0.9.10
 ENV TERRAFORM_ZIPBALL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 RUN curl -sL -o terraform.zip $TERRAFORM_ZIPBALL && \
@@ -20,7 +20,7 @@ RUN curl -sL -o terragrunt $TERRAGRUNT_BINARY && \
     sudo install -m 0755 -p terragrunt /usr/local/bin/ && \
     rm -f terragrunt
 
-ENV PACKER_VERSION 1.0.1
+ENV PACKER_VERSION 1.0.2
 ENV PACKER_ZIPBALL https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip
 
 RUN curl -sL -o packer.zip $PACKER_ZIPBALL && \
