@@ -27,7 +27,8 @@ function build {
     $root \
     --build-arg USER=$user_name \
     --build-arg UID=$(id -u) \
-    --build-arg GID=$(id -g)
+    --build-arg GID=$(id -g) \
+    --build-arg DOCKER_GID=$(getent group docker | awk -F: '{print $3}')
   docker build \
     -t $container \
     --rm \

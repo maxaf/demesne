@@ -44,10 +44,14 @@ for cmd in ${cmds[@]}; do
   fi
 done
 
-for volume in ${volumes[@]}; do
-  [ -d $volume ] || [ -f $volume ] || [ -L $volume ] || mkdir -p $volume
-  echo $volume | sed -e s,^"$HOME",~,g
-done >$dir/.volumes
+(
+  for volume in ${volumes[@]}; do
+    [ -d $volume ] || [ -f $volume ] || [ -L $volume ] || mkdir -p $volume 2>/dev/null || true
+    echo $volume | sed -e s,^"$HOME",~,g
+  done
+  echo /var/run/docker.sock
+) >$dir/.volumes
+
 
 for env in ${env[@]}; do
   echo $env
