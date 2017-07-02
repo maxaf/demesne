@@ -9,6 +9,7 @@ hostfs=/hostfs/${container}
 pwd=$hostfs/$PWD
 user_name=demesne
 user_home=/home/$user_name
+docker_socket="$(readlink -f /var/run/docker.sock)"
 
 function log {
   >>$root/demesne.log echo "[$(date)] $@"
@@ -28,7 +29,8 @@ function build {
     --build-arg USER=$user_name \
     --build-arg UID=$(id -u) \
     --build-arg GID=$(id -g) \
-    --build-arg DOCKER_GID=$(getent group docker | awk -F: '{print $3}')
+    --build-arg DOCKER_GROUP=$(stat -c '%G' "$docker_socket") \
+    --build-arg DOCKER_GID=$(stat -c '%g' "$docker_socket")
   docker build \
     -t $container \
     --rm \

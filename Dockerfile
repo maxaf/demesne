@@ -1,8 +1,11 @@
 FROM debian:unstable
 
 ARG USER
+
 ARG UID
 ARG GID
+
+ARG DOCKER_GROUP
 ARG DOCKER_GID
 
 ENV USER=$USER
@@ -20,7 +23,7 @@ RUN getent group $GID >/dev/null || addgroup --gid $GID $USER \
     && sudo adduser $USER sudo \
     && echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne \
     && groupmod -o -g $DOCKER_GID docker \
-    && usermod -G docker -a $USER
+    && usermod -G docker,$DOCKER_GROUP -a $USER
 
 WORKDIR $HOME
 USER $USER
