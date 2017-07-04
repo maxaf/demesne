@@ -32,6 +32,10 @@ RUN sudo apt install -y python3.5 python3-pip groff less && \
     sudo pip3 install --upgrade pip && \
     sudo pip3 install awscli
 
+ENV AWLESS_VERSION 0.1.0
+ENV AWLESS_TARBALL https://github.com/wallix/awless/releases/download/v${AWLESS_VERSION}/awless-linux-amd64.tar.gz
+RUN curl -skL $AWLESS_TARBALL | tar zvxf - -C /usr/local/bin
+
 ENV PAGER /usr/bin/less
 
 ENTRYPOINT ["/bin/bash"]
