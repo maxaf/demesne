@@ -1,0 +1,14 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM demesne
+
+ARG GOLANG_VERSION=1.8.3
+ENV GOLANG_TARBALL https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz
+
+RUN sudo mkdir /usr/local/go && sudo chown $USER /usr/local/go
+RUN curl -sL $GOLANG_TARBALL | tar zxf - -C /usr/local
+
+ENV PATH /usr/local/go/bin:$PATH
+
+ENTRYPOINT ["/bin/cat"]
