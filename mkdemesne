@@ -6,6 +6,7 @@ name=""
 cmds=()
 volumes=()
 env=()
+links=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -21,6 +22,10 @@ while [[ $# -gt 0 ]]; do
       env+=("$2")
       shift
       ;;
+    -l|--link)
+      links+=("$2")
+      shift
+      ;;
     *)
       cmds+=("$1")
       ;;
@@ -31,17 +36,19 @@ done
 dir=$root/${name}.demesne
 mkdir -pv $dir
 ln -vf $root/demesne $dir/$name
-ln -svf $dir/$name $dir/${name}-shell
+ln -svf $name $dir/${name}-shell
 ln -vf $root/Dockerfile $dir/Dockerfile.base
 dockerfile=$root/Dockerfile.${name}
 [ -f $dockerfile ] || dockerfile=$root/Dockerfile
 cp -v $dockerfile $dir/Dockerfile
 cp -v $root/.dockerignore $dir
 
+echo $name >$dir/.cmds
 for cmd in ${cmds[@]}; do
   if [ "$name" != "$cmd" ]; then
-    ln -svf $dir/$name $dir/$cmd
+    ln -svf $name $dir/$cmd
   fi
+  echo $cmd >>$dir/.cmds
 done
 
 (
@@ -52,7 +59,11 @@ done
   echo /var/run/docker.sock
 ) >$dir/.volumes
 
-
 for env in ${env[@]}; do
   echo $env
 done >$dir/.env
+
+>$dir/.links
+for link in ${links[@]}; do
+  echo $link >>$dir/.links
+done

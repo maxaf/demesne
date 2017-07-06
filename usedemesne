@@ -10,4 +10,10 @@ for dir in $(find \
   path="$dir:$path"
 done
 
-echo export PATH=\"$root:$path\"
+var="PATH=\"$root:$path\""
+
+if [ ${#@} -gt 0 ]; then
+  exec env "$var" $@
+else
+  echo "$var"
+fi

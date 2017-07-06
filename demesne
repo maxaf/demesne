@@ -5,8 +5,12 @@
 container=$(basename $(readlink -f $0))
 cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
-hostfs=/hostfs/${container}
-pwd=$hostfs/$PWD
+#hostfs=/hostfs/${container}
+hostfs=/hostfs
+function clean_hostfs {
+  echo "$1" | sed -e 's/\(\/hostfs\)\1\+/\1/g'
+}
+pwd=$(clean_hostfs $hostfs$PWD)
 user_name=demesne
 user_home=/home/$user_name
 docker_socket="$(readlink -f /var/run/docker.sock)"
@@ -56,7 +60,7 @@ function docker_exec {
   args=()
   for arg in $@; do
     if [[ "$arg" == /* ]]; then
-      args+=(${hostfs}$arg)
+      args+=($(clean_hostfs "${hostfs}$arg"))
     else
       args+=($arg)
     fi
@@ -67,7 +71,7 @@ function docker_exec {
     term="-t"
   fi
   env_args="${env[@]}"
-  exec docker exec -i $term $container bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' \$@" -- "${args[@]}" 2>&1
+  exec docker exec -i $term $container bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' bash /alien/usedemesne \$@" -- "${args[@]}" 2>&1
 }
 
 function clean_up {
@@ -89,17 +93,27 @@ else
 fi
 
 if [ "$(docker ps -qa -f name=$container)" == "" ]; then
-  volumes=(-v /:$hostfs)
+  ls -ald /alien/usedemesne
+  ud=$root/../usedemesne:/alien/usedemesne
+  volumes=(-v /:$hostfs -v $ud)
   for volume in $(cat $root/.volumes 2>/dev/null || true); do
     host_volume=$(echo $volume | sed -e s,~,$HOME,g)
     container_volume=$(echo $volume | sed -e s,~,$user_home,g)
     volumes+=(-v $host_volume:$container_volume)
   done
+
+  for link in $(cat $root/.links); do
+    alien=$(readlink -f $root/../${link}.demesne)
+    if [ -d "$alien" ]; then
+      volumes+=(-v $alien:/alien/${link}.demesne)
+    fi
+  done
+
   docker run \
     -h $container \
     -P \
     ${volumes[@]} \
-    -w $pwd \
+    -w "$pwd" \
     -td \
     --name $container \
     --label demesne.build_time=$(date +%s) \
