@@ -93,7 +93,6 @@ else
 fi
 
 if [ "$(docker ps -qa -f name=$container)" == "" ]; then
-  ls -ald /alien/usedemesne
   ud=$root/../usedemesne:/alien/usedemesne
   volumes=(-v /:$hostfs -v $ud)
   for volume in $(cat $root/.volumes 2>/dev/null || true); do
@@ -111,7 +110,6 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
 
   docker run \
     -h $container \
-    -P \
     ${volumes[@]} \
     -w "$pwd" \
     -td \
@@ -120,6 +118,7 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
     --cap-add=SYS_ADMIN \
     --cap-add=SYS_PTRACE \
     --privileged \
+    --net=host \
     $container \
     >/dev/null
 fi
