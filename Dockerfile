@@ -2,7 +2,7 @@ FROM debian:unstable
 
 ARG USER
 
-ARG UID
+ARG UID_ARG
 ARG GID
 
 ARG DOCKER_GROUP
@@ -18,7 +18,7 @@ RUN apt-get update \
     && apt-get autoclean
 
 RUN getent group $GID >/dev/null || addgroup --gid $GID $USER \
-    && adduser --quiet --system --home $HOME --uid $UID --gid $GID --disabled-login $USER \
+    && adduser --quiet --system --home $HOME $UID_ARG --gid $GID --disabled-login $USER \
     && echo $USER:password | chpasswd \
     && sudo adduser $USER sudo \
     && echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne \

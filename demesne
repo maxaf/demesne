@@ -26,12 +26,16 @@ function log {
 #exit 0
 
 function build {
+  uid_arg=""
+  if uname -s | grep -q Linux; then
+    uid_arg="--uid $(id -u)"
+  fi
   docker build \
     -t demesne \
     -f $root/Dockerfile.base \
     $root \
     --build-arg USER=$user_name \
-    --build-arg UID=$(id -u) \
+    --build-arg UID_ARG="$uid_arg" \
     --build-arg GID=$(id -g) \
     --build-arg DOCKER_GROUP=$(stat -c '%G' "$docker_socket") \
     --build-arg DOCKER_GID=$(stat -c '%g' "$docker_socket")
