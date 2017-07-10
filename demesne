@@ -114,6 +114,7 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
 
   docker run \
     -h $container \
+    --add-host=$container:0.0.0.0 \
     ${volumes[@]} \
     -w "$pwd" \
     -td \
