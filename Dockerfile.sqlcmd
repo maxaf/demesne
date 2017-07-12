@@ -1,0 +1,14 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM demesne
+
+RUN sudo apt install -y gnupg2 apt-transport-https \
+    && curl -skL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - \
+    && curl -skL https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list \
+    && sudo apt update \
+    && sudo env ACCEPT_EULA=y apt install -y mssql-tools unixodbc-dev
+
+ENV PATH /opt/mssql-tools/bin:$PATH
+
+ENTRYPOINT ["/bin/cat"]
