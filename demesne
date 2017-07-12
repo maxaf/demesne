@@ -19,6 +19,10 @@ function log {
   >>$root/demesne.log echo "[$(date)] $@"
 }
 
+quote () {
+    echo \'${1//\'/\'\\\'\'}\'
+}
+
 #echo "container = $container"
 #echo "cmd       = $cmd"
 #echo "root      = $root"
@@ -55,10 +59,10 @@ function docker_exec {
   for line in $(grep -v '^#' $root/.env 2>/dev/null || true); do
     IFS== read key value <<<"$line"
     if [ "$value" == "" ]; then
-      value=${!key}
+      value="${!key}"
     fi
     if [ "$value" != "" ]; then
-      env+=($key=$(echo $value | sed -e s,$HOME,$user_home,g))
+      env+=($key=$(quote "$(echo $value | sed -e s,$HOME,$user_home,g)"))
     fi
   done
   args=()
