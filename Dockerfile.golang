@@ -9,6 +9,6 @@ ENV GOLANG_TARBALL https://storage.googleapis.com/golang/go${GOLANG_VERSION}.lin
 RUN sudo mkdir /usr/local/go && sudo chown $USER /usr/local/go
 RUN curl -sL $GOLANG_TARBALL | tar zxf - -C /usr/local
 
-ENV PATH /usr/local/go/bin:$PATH
+ENV PATH /usr/local/go/bin:$HOME/go/bin:$PATH
 
 ENTRYPOINT ["/bin/cat"]
