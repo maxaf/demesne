@@ -20,7 +20,7 @@ RUN curl -sL -o terragrunt $TERRAGRUNT_BINARY && \
     sudo install -m 0755 -p terragrunt /usr/local/bin/ && \
     rm -f terragrunt
 
-ENV PACKER_VERSION 1.0.2
+ENV PACKER_VERSION 1.0.3
 ENV PACKER_ZIPBALL https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip
 
 RUN curl -sL -o packer.zip $PACKER_ZIPBALL && \
