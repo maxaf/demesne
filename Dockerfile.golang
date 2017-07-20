@@ -3,12 +3,22 @@
 
 FROM demesne
 
+RUN sudo apt update && sudo apt install -y protobuf-compiler
+
 ARG GOLANG_VERSION=1.8.3
 ENV GOLANG_TARBALL https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz
 
 RUN sudo mkdir /usr/local/go && sudo chown $USER /usr/local/go
 RUN curl -sL $GOLANG_TARBALL | tar zxf - -C /usr/local
 
+ENV GOPATH $HOME/go
 ENV PATH /usr/local/go/bin:$HOME/go/bin:$PATH
+
+RUN \
+  go get -u -v github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway && \
+  go get -u -v github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger && \
+  go get -u -v github.com/golang/protobuf/protoc-gen-go && \
+  go get -u -v github.com/square/goprotowrap/cmd/protowrap && \
+  go get -u -v google.golang.org/grpc
 
 ENTRYPOINT ["/bin/cat"]
