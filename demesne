@@ -75,11 +75,13 @@ function docker_exec {
   done
   log ${args[@]}
   term=""
-  if [ -t 1 ]; then
-    term="-t"
+  if [ -t 0 ]; then
+    term="-i -t"
+  else
+    term="-i"
   fi
   env_args="${env[@]}"
-  exec docker exec -i $term $container bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' bash /alien/usedemesne \$@" -- "${args[@]}" 2>&1
+  exec docker exec $term $container bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' bash /alien/usedemesne \$@" -- "${args[@]}" 2>&1
 }
 
 function clean_up {
