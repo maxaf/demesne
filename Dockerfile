@@ -13,9 +13,18 @@ ENV HOME /home/$USER
 
 RUN apt-get update \
     && apt-get dist-upgrade -y \
-    && apt-get install -y sudo apt-utils libterm-readline-gnu-perl curl docker.io \
+    && apt-get install -y sudo apt-utils libterm-readline-gnu-perl locales curl docker.io \
     && apt-get autoremove \
     && apt-get autoclean
+
+RUN \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen && \
+    echo 'LANG="en_US.UTF-8"'>/etc/default/locale && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG=en_US.UTF-8
 
 RUN getent group $GID >/dev/null || addgroup --gid $GID $USER \
     && adduser --quiet --system --home $HOME $UID_ARG --gid $GID --disabled-login $USER \
