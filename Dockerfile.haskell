@@ -1,0 +1,10 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM demesne
+
+RUN sudo apt update && sudo apt install -y curl
+RUN curl -sSL https://get.haskellstack.org/ | sh
+RUN stack setup
+
+ENTRYPOINT ["/bin/cat"]
