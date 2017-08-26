@@ -27,7 +27,8 @@ RUN \
     -o /tmp/scalafmt \
     --standalone \
     --main org.scalafmt.cli.Cli \
-  && mv /tmp/scalafmt /usr/local/bin/scalafmt
+  && sudo install -m 0755 -p /tmp/scalafmt /usr/local/bin/ \
+  && rm -f /tmp/scalafmt
 
 ENV PATH $SCALA_HOME/bin:$PATH
 
