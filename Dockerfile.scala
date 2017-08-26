@@ -3,7 +3,7 @@
 
 FROM demesne
 
-ARG SCALA_VERSION=2.12.2
+ARG SCALA_VERSION=2.12.3
 ENV SCALA_HOME /usr/local/scala-${SCALA_VERSION}
 ENV SBT $SCALA_HOME/bin/sbt
 ENV COURSIER $SCALA_HOME/bin/coursier
@@ -20,6 +20,14 @@ RUN sudo curl -s -o $SBT https://raw.githubusercontent.com/paulp/sbt-extras/mast
 
 RUN sudo curl -sL -o $COURSIER https://git.io/vgvpD \
     && sudo chmod 755 $COURSIER
+
+RUN \
+  $COURSIER bootstrap \
+    com.geirsson:scalafmt-cli_2.12:1.2.0 \
+    -o /tmp/scalafmt \
+    --standalone \
+    --main org.scalafmt.cli.Cli \
+  && mv /tmp/scalafmt /usr/local/bin/scalafmt
 
 ENV PATH $SCALA_HOME/bin:$PATH
 
