@@ -2,6 +2,14 @@
 
 #set -e
 
+function cleanup {
+  if [ -d $TMPDIR ]; then
+    find $TMPDIR -mindepth 1 -maxdepth 1 -type d -name '*.demesne.*' | xargs -rt rm -fv
+  fi
+}
+
+trap cleanup EXIT
+
 container=$(basename $(readlink -f $0))
 cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
@@ -34,6 +42,7 @@ function build {
   if uname -s | grep -q Linux; then
     uid_arg="--uid $(id -u)"
   fi
+  t=$(mktemp -t -d build.demesne.XXXXXX)
   docker build \
     -t demesne \
     -f $root/Dockerfile.base \
@@ -81,7 +90,7 @@ function docker_exec {
     term="-i"
   fi
   env_args="${env[@]}"
-  exec docker exec $term $container bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' bash /alien/usedemesne \$@" -- "${args[@]}" 2>&1
+  exec docker exec $term $container /bin/bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' env BASH_ENV=\$HOME/.bash_env /bin/bash /alien/usedemesne \$@" -- "${args[@]}" 2>&1
 }
 
 function clean_up {

@@ -14,8 +14,8 @@ ENV HOME /home/$USER
 RUN apt-get update \
     && apt-get dist-upgrade -y \
     && apt-get install -y sudo apt-utils libterm-readline-gnu-perl locales curl docker.io \
-    && apt-get autoremove \
-    && apt-get autoclean
+    && apt-get autoremove -y \
+    && apt-get autoclean -y
 
 RUN \
     dpkg-reconfigure -f noninteractive tzdata && \
@@ -33,6 +33,8 @@ RUN getent group $GID >/dev/null || addgroup --gid $GID $USER \
     && echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne \
     && groupmod -o -g $DOCKER_GID docker \
     && usermod -G docker,$DOCKER_GROUP -a $USER
+
+ADD .bash_env $HOME/.bash_env
 
 WORKDIR $HOME
 USER $USER
