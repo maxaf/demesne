@@ -1,0 +1,13 @@
+# -*- mode: sh -*-
+# vi: set ft=sh :
+GOPATH="$(go env GOPATH)"
+path="$PWD"
+src=""
+while [ "$path" != "/" ]; do
+        if [ "$(basename $path)" == "src" ]; then
+                GOPATH="$(dirname $path)"
+                break
+        fi
+        path="$(dirname $path)"
+done
+export GOPATH
