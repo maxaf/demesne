@@ -10,7 +10,7 @@ ENV COURSIER $SCALA_HOME/bin/coursier
 
 RUN sudo mkdir -p $SCALA_HOME
 
-RUN sudo apt install -y openjdk-8-jdk-headless git procps xterm
+RUN sudo apt install -y openjdk-8-jdk-headless git procps xterm visualvm
 
 RUN curl -s https://downloads.lightbend.com/scala/${SCALA_VERSION}/scala-${SCALA_VERSION}.tgz \
     | sudo tar zxf - -C $SCALA_HOME --strip-components=1
