@@ -5,7 +5,7 @@ FROM demesne
 
 RUN sudo apt update && sudo apt install -y protobuf-compiler
 
-ARG GOLANG_VERSION=1.9
+ARG GOLANG_VERSION=1.9.1
 ENV GOLANG_TARBALL https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz
 
 RUN sudo mkdir /usr/local/go && sudo chown $USER /usr/local/go
