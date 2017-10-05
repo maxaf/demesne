@@ -10,7 +10,7 @@ for dir in $(find \
   path="$dir:$path"
 done
 
-var="PATH=\"$root:$path\""
+var="PATH=$root:$path"
 
 if [ ${#@} -gt 0 ]; then
   exec env "$var" $@
