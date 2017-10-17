@@ -43,7 +43,7 @@ dockerfile=$root/Dockerfile.${name}
 cp -v $dockerfile $dir/Dockerfile
 cp -v $root/.dockerignore $dir
 bash_env=$root/.bash_env.$name
-[ -f $bash_env ] && cp -v $bash_env $dir/.bash_env
+[ -f $bash_env ] && cp -v $bash_env $dir/.bash_env || touch $dir/.bash_env
 
 echo $name >$dir/.cmds
 for cmd in ${cmds[@]}; do

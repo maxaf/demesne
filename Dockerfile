@@ -32,6 +32,7 @@ RUN \
 ENV LANG=en_US.UTF-8
 
 RUN getent group $GID >/dev/null || addgroup --gid $GID $USER \
+    && groupadd -g $DOCKER_GID -o $DOCKER_GROUP || true \
     && adduser --quiet --system --home $HOME $UID_ARG --gid $GID --disabled-login $USER \
     && echo $USER:password | chpasswd \
     && sudo adduser $USER sudo \
