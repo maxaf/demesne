@@ -67,6 +67,7 @@ function docker_exec {
   env=()
   for line in $(grep -v '^#' $root/.env 2>/dev/null || true); do
     IFS== read key value <<<"$line"
+    unset IFS
     if [ "$value" == "" ]; then
       value="${!key}"
     fi
@@ -75,22 +76,22 @@ function docker_exec {
     fi
   done
   args=()
-  for arg in $@; do
+  for arg in "$@"; do
     if [[ "$arg" == /* ]]; then
-      args+=($(clean_hostfs "${hostfs}$arg"))
+      args+=("$(clean_hostfs "${hostfs}$arg")")
     else
-      args+=($arg)
+      args+=("$arg")
     fi
   done
   log ${args[@]}
   term=""
-  if [ -t 0 ]; then
+  if [ -t 0 ] && [ -t 1 ]; then
     term="-i -t"
   else
     term="-i"
   fi
   env_args="${env[@]}"
-  exec docker exec $term $container /bin/bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' env BASH_ENV=\$HOME/.bash_env /bin/bash /alien/usedemesne \$@" -- "${args[@]}" 2>&1
+  exec docker exec $term $container /bin/bash -c "cd $pwd; exec /usr/bin/env $env_args PS1='\\w \\$ ' env BASH_ENV=\$HOME/.bash_env /bin/bash /alien/usedemesne \"\$@\"" -- "${args[@]}" 2>&1
 }
 
 function clean_up {
@@ -131,6 +132,7 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
     -h $container \
     --add-host=$container:0.0.0.0 \
     ${volumes[@]} \
+    $(pinata-ssh-mount 2>/dev/null || true) \
     -w "$pwd" \
     -td \
     --name $container \
@@ -150,5 +152,5 @@ fi
 if [ "$cmd" == "${container}-shell" ]; then
   docker_exec bash
 else
-  docker_exec "$cmd $@"
+  docker_exec "$cmd" "$@"
 fi
