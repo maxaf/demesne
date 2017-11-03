@@ -13,7 +13,7 @@ done
 var="PATH=$root:$path"
 
 if [ ${#@} -gt 0 ]; then
-  exec env "$var" $@
+  exec env "$var" "$@"
 else
   echo "$var"
 fi
