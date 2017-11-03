@@ -40,8 +40,6 @@ RUN getent group $GID >/dev/null || addgroup --gid $GID $USER \
     && groupmod -o -g $DOCKER_GID docker \
     && usermod -G docker,$DOCKER_GROUP -a $USER
 
-ADD .bash_env $HOME/.bash_env
-
 WORKDIR $HOME
 USER $USER
 

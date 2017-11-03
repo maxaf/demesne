@@ -5,7 +5,7 @@ FROM demesne
 
 RUN sudo apt update && sudo apt install -y protobuf-compiler
 
-ARG GOLANG_VERSION=1.9.1
+ARG GOLANG_VERSION=1.9.2
 ENV GOLANG_TARBALL https://storage.googleapis.com/golang/go${GOLANG_VERSION}.linux-amd64.tar.gz
 
 RUN sudo mkdir /usr/local/go && sudo chown $USER /usr/local/go
@@ -19,7 +19,18 @@ RUN \
   go get -u -v github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger && \
   go get -u -v github.com/golang/protobuf/protoc-gen-go && \
   go get -u -v github.com/square/goprotowrap/cmd/protowrap && \
-  go get -u -v google.golang.org/grpc
+  go get -u -v google.golang.org/grpc && \
+  go get -u -v honnef.co/go/tools/cmd/megacheck && \
+  go get -u -v github.com/golang/lint/golint && \
+  go get -u -v github.com/MediaMath/part && \
+  go get -u -v github.com/dvyukov/go-fuzz/go-fuzz && \
+  go get -u -v github.com/dvyukov/go-fuzz/go-fuzz-build
 
+#RUN \
+#  CGO_CFLAGS="-I/tmp/rocksdb/include" \
+#  CGO_LDFLAGS="-L/tmp/rocksdb -lrocksdb -lstdc++ -lm -lz -lbz2 -lsnappy -llz4 -lzstd" \
+#  go get -u -v github.com/tecbot/gorocksdb
+
+ADD .bash_env $HOME/.bash_env
 
 ENTRYPOINT ["/bin/cat"]

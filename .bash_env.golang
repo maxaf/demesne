@@ -11,3 +11,5 @@ while [ "$path" != "/" ]; do
         path="$(dirname $path)"
 done
 export GOPATH
+
+sudo chmod 600 /var/run/docker.sock
