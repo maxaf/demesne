@@ -1,0 +1,13 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM demesne
+
+RUN sudo apt update && sudo apt-get install -y build-essential zlib1g-dev libbz2-dev liblz4-dev libsnappy-dev libzstd-dev libgflags-dev
+
+RUN git clone https://github.com/facebook/rocksdb /tmp/rocksdb \
+    && cd /tmp/rocksdb \
+    && git checkout v5.8 \
+    && make -j$(lscpu -b -p | grep -v '^#' | wc -l) DEBUG_LEVEL=0 shared_lib tools
+
+ENTRYPOINT ["/bin/cat"]
