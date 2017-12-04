@@ -1,6 +1,8 @@
 # -*- mode: dockerfile -*-
 # vi: set ft=dockerfile :
 
+#FROM linuxkit/kernel:4.9.44 as ksrc
+#FROM linuxkit/kernel:4.4.93 as ksrc
 FROM demesne
 
 RUN sudo apt install -y zip
@@ -32,7 +34,7 @@ RUN sudo apt install -y python3.5 python3-pip groff less && \
     sudo pip3 install --upgrade pip && \
     sudo pip3 install awscli
 
-ENV AWLESS_VERSION 0.1.5
+ENV AWLESS_VERSION 0.1.8
 ENV AWLESS_TARBALL https://github.com/wallix/awless/releases/download/v${AWLESS_VERSION}/awless-linux-amd64.tar.gz
 RUN curl -skL $AWLESS_TARBALL | sudo tar zxf - -C /usr/local/bin
 
@@ -61,6 +63,46 @@ RUN \
     sudo apt-add-repository 'deb http://repo.saltstack.com/apt/debian/9/amd64/latest stretch main' && \
     sudo apt-get update && \
     sudo apt-get install -y salt-master salt-minion salt-ssh salt-syndic salt-cloud salt-api
+
+ENV GOAD_VERSION 2.0.4
+ENV GOAD_ZIPBALL https://github.com/goadapp/goad/releases/download/${GOAD_VERSION}/goad-linux-x86-64.zip
+RUN curl -sL -o goad.zip $GOAD_ZIPBALL && \
+    unzip goad.zip && \
+    sudo install -m 0755 goad /usr/local/bin/ && \
+    rm -f goad goad.zip
+
+ENV K6_VERSION v0.18.0
+ENV K6_TARBALL https://github.com/loadimpact/k6/releases/download/${K6_VERSION}/k6-${K6_VERSION}-linux64.tar.gz
+RUN curl -sL $K6_TARBALL | sudo tar zxf - -C /usr/local/bin/ --strip-components=1 k6-v0.18.0-linux64/k6
+
+#RUN \
+#    curl -sL https://packages.chef.io/chef.asc | sudo apt-key add - && \
+#    sudo apt-add-repository 'deb https://packages.chef.io/repos/apt/current jessie main' && \
+#    sudo apt-get update && \
+#    sudo apt-get install -y chefdk && \
+#    sudo /opt/chefdk/embedded/bin/gem install kitchen-salt
+#
+#COPY --from=ksrc /kernel-dev.tar /tmp
+#COPY --from=ksrc /kernel.tar /tmp
+#RUN sudo tar xf /tmp/kernel-dev.tar -C /
+#RUN sudo tar xf /tmp/kernel.tar -C /
+#RUN \
+#    v=$(uname -r | awk -F- '{print $1}') && \
+#    sudo ln -s /lib/modules/${v}-linuxkit /lib/modules/$(uname -r) && \
+#    sudo ln -s /usr/src/linux-headers-${v}-linuxkit /usr/src/linux-headers-$(uname -r) && \
+#    sudo make -C /usr/src/linux-headers-$(uname -r) oldconfig && \
+#    sudo find /usr/src/linux-headers-$(uname -r)/ -type f | xargs grep -Hi -- -linuxkit | awk -F: '{print $1}' | sort | uniq | xargs -r sudo sed -i -e 's/-linuxkit/-boot2docker/g' && \
+#    echo 'CONFIG_UNUSED_SYMBOLS=y' | sudo tee -a /usr/src/linux-headers-$(uname -r)/.config
+#
+#RUN \
+#    curl -sL https://www.virtualbox.org/download/oracle_vbox_2016.asc | sudo apt-key add - && \
+#    curl -sL https://www.virtualbox.org/download/oracle_vbox.asc | sudo apt-key add - && \
+#    sudo apt-add-repository 'deb http://download.virtualbox.org/virtualbox/debian stretch contrib' && \
+#    sudo apt-get update && \
+#    sudo apt-get install -y musl && \
+#    sudo apt-get install -y virtualbox-5.1 && \
+#    sudo /usr/lib/virtualbox/vboxdrv.sh setup || true && \
+#    sudo /usr/lib/virtualbox/vboxdrv.sh setup || true
 
 ENV PAGER /usr/bin/less
 
