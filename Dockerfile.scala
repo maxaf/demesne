@@ -3,7 +3,7 @@
 
 FROM demesne
 
-ARG SCALA_VERSION=2.12.3
+ARG SCALA_VERSION=2.12.4
 ENV SCALA_HOME /usr/local/scala-${SCALA_VERSION}
 ENV SBT $SCALA_HOME/bin/sbt
 ENV COURSIER $SCALA_HOME/bin/coursier
@@ -23,7 +23,7 @@ RUN sudo curl -sL -o $COURSIER https://git.io/vgvpD \
 
 RUN \
   $COURSIER bootstrap \
-    com.geirsson:scalafmt-cli_2.12:1.2.0 \
+    com.geirsson:scalafmt-cli_2.12:1.3.0 \
     -o /tmp/scalafmt \
     --standalone \
     --main org.scalafmt.cli.Cli \
@@ -33,6 +33,6 @@ RUN \
 ENV PATH $SCALA_HOME/bin:$PATH
 
 RUN mkdir -p $HOME/.sbt/0.13/plugins \
-    && echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC6")' >$HOME/.sbt/0.13/plugins/build.sbt
+    && echo 'addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC13")' >$HOME/.sbt/0.13/plugins/build.sbt
 
 ENTRYPOINT ["/bin/cat"]
