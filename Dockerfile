@@ -31,14 +31,15 @@ RUN \
 
 ENV LANG=en_US.UTF-8
 
-RUN getent group $GID >/dev/null || addgroup --gid $GID $USER \
-    && groupadd -g $DOCKER_GID -o $DOCKER_GROUP || true \
-    && adduser --quiet --system --home $HOME $UID_ARG --gid $GID --disabled-login $USER \
-    && echo $USER:password | chpasswd \
-    && sudo adduser $USER sudo \
-    && echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne \
-    && groupmod -o -g $DOCKER_GID docker \
-    && usermod -G docker,$DOCKER_GROUP -a $USER
+RUN getent group $GID >/dev/null || addgroup --gid $GID $USER
+RUN groupadd -g $DOCKER_GID -o $DOCKER_GROUP || true
+RUN useradd -l -r -d $HOME $UID_ARG -g $GID $USER
+RUN mkdir -p $HOME && chown -R $USER $HOME
+RUN echo $USER:password | chpasswd
+RUN sudo adduser $USER sudo
+RUN echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne
+RUN groupmod -o -g $DOCKER_GID docker
+RUN usermod -G docker,$DOCKER_GROUP -a $USER
 
 WORKDIR $HOME
 USER $USER
