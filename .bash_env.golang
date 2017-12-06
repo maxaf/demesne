@@ -12,4 +12,4 @@ while [ "$path" != "/" ]; do
 done
 export GOPATH
 
-sudo chmod 600 /var/run/docker.sock
+sudo chmod 666 /var/run/docker.sock
