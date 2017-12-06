@@ -5,9 +5,18 @@
 #FROM linuxkit/kernel:4.4.93 as ksrc
 FROM demesne
 
+ENV TERRAFORM_VERSION 0.11.1
+ENV TERRAGRUNT_VERSION 0.13.23
+ENV PACKER_VERSION 1.1.2
+ENV AWLESS_VERSION 0.1.8
+ENV MINIKUBE_VERSION 0.24.1
+ENV KUBECTL_VERSION 1.8.2
+ENV HELM_VERSION 2.7.2
+ENV GOAD_VERSION 2.0.4
+ENV K6_VERSION 0.18.0
+
 RUN sudo apt install -y zip
 
-ENV TERRAFORM_VERSION 0.10.8
 ENV TERRAFORM_ZIPBALL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
 
 RUN curl -sL -o terraform.zip $TERRAFORM_ZIPBALL && \
@@ -15,14 +24,12 @@ RUN curl -sL -o terraform.zip $TERRAFORM_ZIPBALL && \
     sudo install -m 0755 -p terraform /usr/local/bin/ && \
     rm -f terraform terraform.zip
 
-ENV TERRAGRUNT_VERSION 0.13.17
 ENV TERRAGRUNT_BINARY https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_amd64
 
 RUN curl -sL -o terragrunt $TERRAGRUNT_BINARY && \
     sudo install -m 0755 -p terragrunt /usr/local/bin/ && \
     rm -f terragrunt
 
-ENV PACKER_VERSION 1.1.1
 ENV PACKER_ZIPBALL https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip
 
 RUN curl -sL -o packer.zip $PACKER_ZIPBALL && \
@@ -34,26 +41,22 @@ RUN sudo apt install -y python3.5 python3-pip groff less && \
     sudo pip3 install --upgrade pip && \
     sudo pip3 install awscli
 
-ENV AWLESS_VERSION 0.1.8
 ENV AWLESS_TARBALL https://github.com/wallix/awless/releases/download/v${AWLESS_VERSION}/awless-linux-amd64.tar.gz
 RUN curl -skL $AWLESS_TARBALL | sudo tar zxf - -C /usr/local/bin
 
-ENV MINIKUBE_VERSION v0.23.0
-ENV MINIKUBE_URL https://storage.googleapis.com/minikube/releases/$MINIKUBE_VERSION/minikube-linux-amd64
+ENV MINIKUBE_URL https://storage.googleapis.com/minikube/releases/v$MINIKUBE_VERSION/minikube-linux-amd64
 RUN \
     curl -sLo minikube $MINIKUBE_URL && \
     sudo install -m 0755 -p minikube /usr/local/bin/ && \
     rm -f minikube
 
-ENV KUBECTL_VERSION v1.8.2
-ENV KUBECTL_URL https://storage.googleapis.com/kubernetes-release/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl
+ENV KUBECTL_URL https://storage.googleapis.com/kubernetes-release/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl
 RUN \
     curl -sLo kubectl $KUBECTL_URL && \
     sudo install -m 0755 -p kubectl /usr/local/bin/ && \
     rm -f kubectl
 
-ENV HELM_VERSION v2.7.0
-ENV HELM_URL https://storage.googleapis.com/kubernetes-helm/helm-$HELM_VERSION-linux-amd64.tar.gz
+ENV HELM_URL https://storage.googleapis.com/kubernetes-helm/helm-v$HELM_VERSION-linux-amd64.tar.gz
 RUN \
     curl -sL $HELM_URL | \
     sudo tar zxf - -C /usr/local/bin/ --strip-components=1 linux-amd64/helm
@@ -64,16 +67,14 @@ RUN \
     sudo apt-get update && \
     sudo apt-get install -y salt-master salt-minion salt-ssh salt-syndic salt-cloud salt-api
 
-ENV GOAD_VERSION 2.0.4
 ENV GOAD_ZIPBALL https://github.com/goadapp/goad/releases/download/${GOAD_VERSION}/goad-linux-x86-64.zip
 RUN curl -sL -o goad.zip $GOAD_ZIPBALL && \
     unzip goad.zip && \
     sudo install -m 0755 goad /usr/local/bin/ && \
     rm -f goad goad.zip
 
-ENV K6_VERSION v0.18.0
-ENV K6_TARBALL https://github.com/loadimpact/k6/releases/download/${K6_VERSION}/k6-${K6_VERSION}-linux64.tar.gz
-RUN curl -sL $K6_TARBALL | sudo tar zxf - -C /usr/local/bin/ --strip-components=1 k6-v0.18.0-linux64/k6
+ENV K6_TARBALL https://github.com/loadimpact/k6/releases/download/v${K6_VERSION}/k6-v${K6_VERSION}-linux64.tar.gz
+RUN curl -sL $K6_TARBALL | sudo tar zxf - -C /usr/local/bin/ --strip-components=1 k6-v${K6_VERSION}-linux64/k6
 
 #RUN \
 #    curl -sL https://packages.chef.io/chef.asc | sudo apt-key add - && \
