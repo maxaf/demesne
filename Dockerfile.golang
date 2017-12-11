@@ -24,7 +24,8 @@ RUN \
   go get -u -v github.com/golang/lint/golint && \
   go get -u -v github.com/MediaMath/part && \
   go get -u -v github.com/dvyukov/go-fuzz/go-fuzz && \
-  go get -u -v github.com/dvyukov/go-fuzz/go-fuzz-build
+  go get -u -v github.com/dvyukov/go-fuzz/go-fuzz-build && \
+  go get -u -v github.com/GeertJohan/go.rice/rice
 
 #RUN \
 #  CGO_CFLAGS="-I/tmp/rocksdb/include" \
