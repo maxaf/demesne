@@ -3,10 +3,14 @@
 
 FROM demesne
 
-RUN sudo apt-get install -y gnupg2 build-essential
-RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - \
+RUN curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash - \
     && sudo apt-get install -y nodejs
 
-RUN sudo chown -R $USER /usr/lib/node_modules
+RUN \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add - \
+    && sudo add-apt-repository "deb https://dl.yarnpkg.com/debian/ stable main" \
+    && sudo apt-get update \
+    && sudo apt-get install -y yarn build-essential \
+    && sudo yarn global add npm
 
 ENTRYPOINT ["/bin/bash"]
