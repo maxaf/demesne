@@ -1,0 +1,92 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM demesne
+RUN sudo apt-get install -y git rsync build-essential pkg-config libz-dev \
+    liblzo2-dev libsnappy-dev libbz2-dev libgtk-3-dev libgcrypt-dev gtk-doc-tools \
+    intltool libpcre2-dev gnutls-dev libjpeg62-turbo-dev libpulse-dev \
+    libncurses-dev libcurl4-gnutls-dev libaio-dev libepoxy-dev libgbm-dev texinfo \
+    perl libspice-server-dev libspice-protocol-dev libusb-1.0-0-dev \
+    libvirglrenderer-dev flex bison libxml2-utils wget
+RUN t=$(mktemp -d) && git clone https://github.com/GNOME/vte.git $t && cd $t && ./autogen.sh --disable-introspection --disable-vala && make -j4 && sudo make install && cd - && rm -rf $t
+RUN \
+    t=$(mktemp -d) && \
+    wget -O - https://download.qemu.org/qemu-3.0.0.tar.xz | tar Jxf - -C $t && \
+    cd $t/qemu-3.0.0 && \
+    mkdir build && \
+    cd build && \
+    ../configure \
+      --extra-cflags=-O6 \
+      --enable-docs \
+      --enable-system \
+      --prefix=/usr/local \
+      --audio-drv-list=pa \
+      --disable-nettle \
+      --enable-gcrypt \
+      --disable-sdl \
+      --enable-gtk \
+      --with-gtkabi=3.0 \
+      --enable-vte \
+      --enable-curses \
+      --enable-vnc \
+      --disable-vnc-sasl \
+      --enable-vnc-jpeg \
+      --enable-vnc-png \
+      --disable-cocoa \
+      --disable-virtfs \
+      --disable-mpath \
+      --disable-xen \
+      --disable-xen-pci-passthrough \
+      --disable-brlapi \
+      --enable-curl \
+      --disable-membarrier \
+      --enable-fdt \
+      --disable-bluez \
+      --enable-kvm \
+      --disable-hax \
+      --disable-hvf \
+      --disable-whpx \
+      --disable-rdma \
+      --disable-vde \
+      --disable-netmap \
+      --enable-linux-aio \
+      --disable-cap-ng \
+      --disable-attr \
+      --disable-vhost-net \
+      --disable-vhost-crypto \
+      --enable-spice \
+      --disable-rbd \
+      --disable-libiscsi \
+      --disable-libnfs \
+      --disable-smartcard \
+      --enable-libusb \
+      --disable-live-block-migration \
+      --disable-usb-redir \
+      --enable-lzo \
+      --enable-snappy \
+      --enable-bzip2 \
+      --disable-seccomp \
+      --enable-coroutine-pool \
+      --disable-glusterfs \
+      --disable-tpm \
+      --disable-libssh2 \
+      --disable-numa \
+      --disable-libxml2 \
+      --disable-tcmalloc \
+      --disable-jemalloc \
+      --disable-replication \
+      --disable-vhost-vsock \
+      --enable-opengl \
+      --enable-virglrenderer \
+      --disable-xfsctl \
+      --disable-qom-cast-debug \
+      --disable-tools \
+      --disable-vxhs \
+      --enable-crypto-afalg \
+      --disable-vhost-user \
+      --disable-capstone \
+      --disable-debug-mutex && \
+    make -j4 && \
+    sudo make install &&  \
+    cd / && \
+    rm -rf $t
