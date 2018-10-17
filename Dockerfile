@@ -1,4 +1,4 @@
-FROM debian:stable
+FROM debian:unstable
 
 ARG USER
 
@@ -16,7 +16,7 @@ RUN apt-get update \
     && apt-get install -y sudo apt-utils libterm-readline-gnu-perl locales curl \
     && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common \
     && curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | apt-key add - \
-    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs) stable" \
+    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs | sed -e s/sid/buster/g) stable" \
     && apt-get update \
     && apt-get install -y docker-ce \
     && apt-get autoremove -y \
