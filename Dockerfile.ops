@@ -5,8 +5,8 @@
 #FROM linuxkit/kernel:4.4.93 as ksrc
 FROM demesne
 
-ENV TERRAFORM_VERSION 0.11.7
-ENV TERRAGRUNT_VERSION 0.14.10
+ENV TERRAFORM_VERSION 0.11.8
+ENV TERRAGRUNT_VERSION 0.16.7
 ENV PACKER_VERSION 1.2.4
 ENV AWLESS_VERSION 0.1.10
 ENV MINIKUBE_VERSION 0.27.0
@@ -14,6 +14,7 @@ ENV KUBECTL_VERSION 1.10.3
 ENV HELM_VERSION 2.9.1
 #ENV GOAD_VERSION 2.0.4
 #ENV K6_VERSION 0.18.0
+ENV DOCKER_MACHINE_VERSION 0.16.0
 
 RUN sudo apt install -y zip
 
@@ -37,7 +38,7 @@ RUN curl -sL -o packer.zip $PACKER_ZIPBALL && \
     sudo install -m 0755 -p packer /usr/local/bin/ && \
     rm -f packer packer.zip
 
-RUN sudo apt install -y python3.5 python3-pip groff less && \
+RUN sudo apt install -y python3.7 python3-pip groff less && \
     sudo pip3 install --upgrade pip && \
     sudo pip3 install awscli && \
     sudo pip3 install awslogs
@@ -76,6 +77,12 @@ RUN \
 
 #ENV K6_TARBALL https://github.com/loadimpact/k6/releases/download/v${K6_VERSION}/k6-v${K6_VERSION}-linux64.tar.gz
 #RUN curl -sL $K6_TARBALL | sudo tar zxf - -C /usr/local/bin/ --strip-components=1 k6-v${K6_VERSION}-linux64/k6
+
+ENV DOCKER_MACHINE_URL https://github.com/docker/machine/releases/download/v0.16.0/docker-machine-Linux-x86_64
+RUN \
+    curl -sLo docker-machine $DOCKER_MACHINE_URL && \
+    sudo install -m 0755 -p docker-machine /usr/local/bin/ && \
+    rm -f docker-machine
 
 #RUN \
 #    curl -sL https://packages.chef.io/chef.asc | sudo apt-key add - && \
