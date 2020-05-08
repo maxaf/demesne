@@ -5,10 +5,10 @@
 #FROM linuxkit/kernel:4.4.93 as ksrc
 FROM demesne
 
-ENV TERRAFORM_VERSION 0.11.8
-ENV TERRAGRUNT_VERSION 0.16.7
-ENV PACKER_VERSION 1.2.4
-ENV AWLESS_VERSION 0.1.10
+ENV TERRAFORM_VERSION 0.11.13
+ENV TERRAGRUNT_VERSION 0.18.7
+ENV PACKER_VERSION 1.4.3
+ENV AWLESS_VERSION 0.1.11
 ENV MINIKUBE_VERSION 0.27.0
 ENV KUBECTL_VERSION 1.10.3
 ENV HELM_VERSION 2.9.1
@@ -41,7 +41,8 @@ RUN curl -sL -o packer.zip $PACKER_ZIPBALL && \
 RUN sudo apt install -y python3.7 python3-pip groff less && \
     sudo pip3 install --upgrade pip && \
     sudo pip3 install awscli && \
-    sudo pip3 install awslogs
+    sudo pip3 install awslogs && \
+    sudo pip3 install aws-shell
 
 ENV AWLESS_TARBALL https://github.com/wallix/awless/releases/download/v${AWLESS_VERSION}/awless-linux-amd64.tar.gz
 RUN curl -skL $AWLESS_TARBALL | sudo tar zxf - -C /usr/local/bin
@@ -63,11 +64,11 @@ RUN \
     curl -sL $HELM_URL | \
     sudo tar zxf - -C /usr/local/bin/ --strip-components=1 linux-amd64/helm
 
-RUN \
-    curl -sL https://repo.saltstack.com/apt/debian/9/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add - && \
-    sudo apt-add-repository 'deb http://repo.saltstack.com/apt/debian/9/amd64/latest stretch main' && \
-    sudo apt-get update && \
-    sudo apt-get install -y salt-master salt-minion salt-ssh salt-syndic salt-cloud salt-api
+#RUN \
+#    curl -sL https://repo.saltstack.com/apt/debian/9/amd64/latest/SALTSTACK-GPG-KEY.pub | sudo apt-key add - && \
+#    sudo apt-add-repository 'deb http://repo.saltstack.com/apt/debian/9/amd64/latest stretch main' && \
+#    sudo apt-get update && \
+#    sudo apt-get install -y salt-master salt-minion salt-ssh salt-syndic salt-cloud salt-api
 
 #ENV GOAD_ZIPBALL https://github.com/goadapp/goad/releases/download/${GOAD_VERSION}/goad-linux-x86-64.zip
 #RUN curl -sL -o goad.zip $GOAD_ZIPBALL && \

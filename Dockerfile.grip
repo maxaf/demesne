@@ -1,0 +1,12 @@
+# -*- mode: dockerfile -*-
+# vi: set ft=dockerfile :
+
+FROM demesne
+
+RUN sudo apt-get update && sudo apt-get upgrade -y
+RUN sudo apt-get install -y python3-pip
+RUN sudo pip3 install --upgrade pip
+RUN sudo pip3 install grip
+EXPOSE 6419
+
+ENTRYPOINT ["/bin/bash"]

@@ -142,6 +142,7 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
     --privileged \
     --net=host \
     $container \
+    -P \
     >/dev/null
 fi
 
