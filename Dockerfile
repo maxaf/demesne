@@ -18,7 +18,7 @@ RUN apt-get update \
     && curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | apt-key add - \
     && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs | sed -e s/sid/buster/g) stable" \
     && apt-get update \
-    && apt-get install -y docker-ce \
+    && echo apt-get install -y docker-ce \
     && apt-get autoremove -y \
     && apt-get autoclean -y
 
@@ -38,8 +38,9 @@ RUN mkdir -p $HOME && chown -R $USER $HOME
 RUN echo $USER:password | chpasswd
 RUN sudo adduser $USER sudo
 RUN echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne
-RUN groupmod -o -g $DOCKER_GID docker
-RUN usermod -G docker,$DOCKER_GROUP -a $USER
+
+RUN echo groupmod -o -g $DOCKER_GID docker
+RUN echo usermod -G docker,$DOCKER_GROUP -a $USER
 
 WORKDIR $HOME
 USER $USER

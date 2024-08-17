@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path=$PATH
+path="$PATH"
 root=$(dirname $(readlink -f $0))
 
 for dir in $(find \
@@ -10,7 +10,7 @@ for dir in $(find \
   path="$dir:$path"
 done
 
-var="PATH=$root:$path"
+var="PATH=$root:\"$path\""
 
 if [ ${#@} -gt 0 ]; then
   exec env "$var" "$@"
