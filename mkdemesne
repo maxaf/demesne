@@ -58,7 +58,7 @@ done
     [ -d $volume ] || [ -f $volume ] || [ -L $volume ] || mkdir -p $volume 2>/dev/null || true
     echo $volume | sed -e s,^"$HOME",~,g
   done
-  echo /var/run/docker.sock
+  echo "$(readlink -f /var/run/docker.sock)"
 ) >$dir/.volumes
 
 for env in ${env[@]}; do

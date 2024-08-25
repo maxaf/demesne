@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#set -e
-
 function cleanup {
   if [ -d $TMPDIR ]; then
     find $TMPDIR -mindepth 1 -maxdepth 1 -type d -name '*.demesne.*' | xargs -rt rm -fv
@@ -13,7 +11,6 @@ trap cleanup EXIT
 container=$(basename $(readlink -f $0))
 cmd=$(basename $0)
 root=$(readlink -f $(dirname $0))
-#hostfs=/hostfs/${container}
 hostfs=/hostfs
 function clean_hostfs {
   echo "$1" | sed -e 's/\(\/hostfs\)\1\+/\1/g'
@@ -31,18 +28,13 @@ quote () {
     echo \'${1//\'/\'\\\'\'}\'
 }
 
-#echo "container = $container"
-#echo "cmd       = $cmd"
-#echo "root      = $root"
-#echo "hostfs    = $hostfs"
-#exit 0
-
 function build {
   uid_arg=""
   if uname -s | grep -q Linux; then
     uid_arg="--uid=$(id -u)"
   fi
   t=$(mktemp -t -d build.demesne.XXXXXX)
+
   docker build \
     -t demesne \
     -f $root/Dockerfile.base \
@@ -52,6 +44,7 @@ function build {
     --build-arg GID=$(id -g) \
     --build-arg DOCKER_GROUP=$(stat -c '%G' "$docker_socket" | awk -F\\ '{print $1}') \
     --build-arg DOCKER_GID=$(stat -c '%g' "$docker_socket")
+
   docker build \
     -t $container \
     --rm \
@@ -128,26 +121,19 @@ if [ "$(docker ps -qa -f name=$container)" == "" ]; then
     fi
   done
 
-  set -x
-
   docker run \
     -h $container \
     --add-host=$container:0.0.0.0 \
     ${volumes[@]} \
-    $(pinata-ssh-mount 2>/dev/null || true) \
     -w "$pwd" \
     -td \
     --name $container \
     --label demesne.build_time=$(date +%s) \
-    --cap-add=SYS_ADMIN \
-    --cap-add=SYS_PTRACE \
-    --privileged \
     --net=host \
-    $container \
+    --userns=keep-id \
+    --entrypoint /bin/cat \
     -P \
-    >/dev/null
-
-  unset -x
+    $container
 fi
 
 if [ "$(docker ps -qa -f name=$container -f status=running)" == "" ]; then
