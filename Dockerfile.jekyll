@@ -3,8 +3,8 @@
 
 FROM demesne
 
-RUN sudo apt-get install -y build-essential ruby ruby-dev
-RUN sudo gem install jekyll
+RUN sudo apk --no-cache add ruby ruby-dev
+RUN sudo gem install --no-document jekyll
 
 EXPOSE 4000
 

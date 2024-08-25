@@ -1,8 +1,8 @@
-FROM debian:unstable
+FROM alpine:edge
 
 ARG USER
 
-ARG UID_ARG
+ARG UID
 ARG GID
 
 ARG DOCKER_GROUP
@@ -11,38 +11,21 @@ ARG DOCKER_GID
 ENV USER=$USER
 ENV HOME /home/$USER
 
-RUN apt-get update \
-    && apt-get dist-upgrade -y \
-    && apt-get install -y sudo apt-utils libterm-readline-gnu-perl locales curl \
-    && apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common \
-    && curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | apt-key add - \
-    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") $(lsb_release -cs | sed -e s/sid/buster/g) stable" \
-    && apt-get update \
-    && echo apt-get install -y docker-ce \
-    && apt-get autoremove -y \
-    && apt-get autoclean -y
-
-RUN \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    echo 'en_US.UTF-8 UTF-8' >/etc/locale.gen && \
-    echo 'LANG="en_US.UTF-8"'>/etc/default/locale && \
-    dpkg-reconfigure --frontend=noninteractive locales && \
-    update-locale LANG=en_US.UTF-8
+RUN apk --no-cache upgrade
+RUN apk --no-cache add bash build-base sudo curl ca-certificates podman podman-docker buildah
 
 ENV LANG=en_US.UTF-8
 
-RUN getent group $GID >/dev/null || addgroup --gid $GID $USER
-RUN groupadd -g $DOCKER_GID -o $DOCKER_GROUP || true
-RUN useradd -l -r -d $HOME $UID_ARG -g $GID $USER
+RUN getent group $GID >/dev/null || sh -x -c "addgroup --gid $GID $USER"
+RUN test -n "$DOCKER_GID" && test -n "$DOCKER_GROUP" && addgroup -g $DOCKER_GID $DOCKER_GROUP || true
+RUN adduser -h $HOME -u $UID -G $USER -D $USER
 RUN mkdir -p $HOME && chown -R $USER $HOME
 RUN echo $USER:password | chpasswd
-RUN sudo adduser $USER sudo
-RUN echo '%sudo ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne
-
-RUN echo groupmod -o -g $DOCKER_GID docker
-RUN echo usermod -G docker,$DOCKER_GROUP -a $USER
+RUN echo 'demesne ALL=(ALL:ALL) NOPASSWD: ALL' >/etc/sudoers.d/demesne
 
 WORKDIR $HOME
 USER $USER
+
+RUN echo password | sudo -S true
 
 ENTRYPOINT ["/bin/bash"]

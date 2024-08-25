@@ -29,10 +29,6 @@ quote () {
 }
 
 function build {
-  uid_arg=""
-  if uname -s | grep -q Linux; then
-    uid_arg="--uid=$(id -u)"
-  fi
   t=$(mktemp -t -d build.demesne.XXXXXX)
 
   docker build \
@@ -40,7 +36,7 @@ function build {
     -f $root/Dockerfile.base \
     $root \
     --build-arg USER=$user_name \
-    --build-arg "UID_ARG=$uid_arg" \
+    --build-arg UID=$(id -u) \
     --build-arg GID=$(id -g) \
     --build-arg DOCKER_GROUP=$(stat -c '%G' "$docker_socket" | awk -F\\ '{print $1}') \
     --build-arg DOCKER_GID=$(stat -c '%g' "$docker_socket")
